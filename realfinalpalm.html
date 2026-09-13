@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>🔮 Brutal Palm Reader — Ultimate Cyber Roast (vMAX)</title>
+<style>
+/* ============================================================
+   0. TOKENS & RESPONSIVE RESET
+============================================================ */
+:root {
+  --bg-void: #030206;
+  --bg-panel: rgba(14, 10, 26, 0.75);
+  --purple-neon: #a568ff;
+  --purple-deep: #2a1150;
+  --crimson-neon: #ff3e6c;
+  --cyan-electric: #35f2ff;
+  --green-toxic: #4dff9e;
+  --gold-cyber: #ffd700;
+  --text-main: #f1edfa;
+  --text-dim: #9d92b8;
+  --border-glass: rgba(165, 104, 255, 0.35);
+  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  --mono: "Courier New", "SFMono-Regular", Consolas, monospace;
+  --serif: Georgia, "Times New Roman", serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow-x: hidden; background: var(--bg-void); color: var(--text-main); font-family: var(--serif); -webkit-font-smoothing: antialiased; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font-family: inherit; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* Dynamic Shake FX */
+body.shake { animation: vShake 0.18s cubic-bezier(.36,.07,.19,.97) 2; }
+@keyframes vShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-8px, 4px) rotate(-1.5deg); filter: hue-rotate(90deg); }
+  75% { transform: translate(8px, -4px) rotate(1.5deg); filter: hue-rotate(-90deg); }
+}
+
+/* ============================================================
+   1. BACKGROUND FX & LAYER SCENE
+============================================================ */
+#bgCanvas { position: fixed; inset: 0; z-index: -3; pointer-events: none; }
+.cyber-grid {
+  position: fixed; inset: -50%; z-index: -2; pointer-events: none;
+  background-image: linear-gradient(rgba(165, 104, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 242, 255, 0.08) 1px, transparent 1px);
+  background-size: 50px 50px; transform: perspective(500px) rotateX(60deg); animation: gridMove 20s linear infinite;
+}
+@keyframes gridMove { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(50px); } }
+
+/* Controls Header */
+.top-controls { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
+.pill-btn { background: var(--bg-panel); border: 1px solid var(--border-glass); color: var(--cyan-electric); padding: 8px 16px; border-radius: 999px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer; backdrop-filter: blur(12px); transition: 0.25s ease; box-shadow: var(--glass-shadow); }
+.pill-btn:hover { background: rgba(53, 242, 255, 0.2); box-shadow: 0 0 20px rgba(53, 242, 255, 0.5); transform: translateY(-2px); }
+
+/* ============================================================
+   2. MAIN CONTAINERS & CARDS
+============================================================ */
+main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 20px 100px; }
+.hero { text-align: center; margin-bottom: 30px; }
+.glitch-title { font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900; margin: 0; color: #fff; text-shadow: 0 0 20px var(--purple-neon), 0 0 40px var(--cyan-electric); position: relative; display: inline-block; }
+.glitch-title::before, .glitch-title::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; opacity: 0.8; }
+.glitch-title::before { color: var(--cyan-electric); clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); animation: glitchA 3.2s infinite steps(2); }
+.glitch-title::after { color: var(--crimson-neon); clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); animation: glitchB 2.7s infinite steps(2); }
+@keyframes glitchA { 0%, 90%, 100% { transform: translate(0); } 92% { transform: translate(-4px, -2px); } 96% { transform: translate(3px, 1px); } }
+@keyframes glitchB { 0%, 85%, 100% { transform: translate(0); } 88% { transform: translate(4px, 2px); } 94% { transform: translate(-3px, -1px); } }
+
+.subtitle { font-style: italic; color: var(--text-dim); margin-top: 8px; font-size: clamp(1rem, 2.5vw, 1.2rem); }
+.disclaimer { font-family: var(--mono); font-size: 0.8rem; color: var(--crimson-neon); letter-spacing: 0.08em; }
+
+/* Scanner Stage Card */
+.tilt-card { background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 24px; backdrop-filter: blur(16px); padding: 32px; box-shadow: var(--glass-shadow); transition: transform 0.1s cubic-bezier(0.03, 0.98, 0.52, 0.99); transform-style: preserve-3d; }
+.portal-empty { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.portal-icon { font-size: 4rem; cursor: pointer; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 15px var(--purple-neon)); }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+.btn-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 20px; width: 100%; }
+.btn { font-family: var(--mono); font-size: 0.85rem; font-weight: bold; letter-spacing: 0.1em; padding: 16px 28px; border-radius: 999px; border: 1.5px solid transparent; cursor: pointer; transition: 0.25s ease; }
+.btn-primary { background: linear-gradient(135deg, var(--purple-deep), var(--crimson-neon)); color: #fff; border-color: rgba(255,255,255,0.2); box-shadow: 0 0 25px rgba(165, 104, 255, 0.4); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 40px rgba(165, 104, 255, 0.8); }
+.btn-secondary { background: transparent; color: var(--cyan-electric); border-color: var(--cyan-electric); }
+.btn-secondary:hover:not(:disabled) { background: rgba(53, 242, 255, 0.12); box-shadow: 0 0 25px rgba(53, 242, 255, 0.4); transform: translateY(-3px); }
+
+/* Live Stream Camera & Overlay */
+.stage-container { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+.viewport-frame { position: relative; width: min(450px, 100%); aspect-ratio: 4/3; border-radius: 18px; overflow: hidden; border: 2px solid var(--border-glass); background: #000; box-shadow: 0 0 35px rgba(0,0,0,0.8); }
+.viewport-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.viewport-frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 10; }
+.scan-line { position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--cyan-electric); box-shadow: 0 0 15px 4px var(--cyan-electric); opacity: 0; z-index: 15; }
+.scanning .scan-line { opacity: 1; animation: scanAnim 1.8s ease-in-out infinite; }
+@keyframes scanAnim { 0% { top: 0%; } 50% { top: 96%; } 100% { top: 0%; } }
+
+.progress-overlay { position: absolute; inset: 0; z-index: 25; background: rgba(5,3,10,0.85); backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+.scan-msg { font-family: var(--mono); font-size: 0.85rem; color: var(--cyan-electric); min-height: 2em; text-shadow: 0 0 10px var(--cyan-electric); }
+.track-bar { width: 85%; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass); overflow: hidden; margin: 12px 0; }
+.fill-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--purple-neon), var(--cyan-electric), var(--crimson-neon)); transition: width 0.1s linear; box-shadow: 0 0 12px var(--cyan-electric); }
+
+/* ============================================================
+   3. RESULTS SECTION & INTERACTIVE SVG
+============================================================ */
+.results-section { margin-top: 40px; display: flex; flex-direction: column; gap: 30px; }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.roast-card { background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 18px; padding: 22px; backdrop-filter: blur(12px); box-shadow: var(--glass-shadow); transition: 0.3s ease; }
+.roast-card:hover { transform: translateY(-5px) scale(1.01); border-color: var(--cyan-electric); }
+.roast-card h3 { font-family: var(--mono); font-size: 0.85rem; color: var(--cyan-electric); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
+
+/* Interactive SVG Box */
+.interactive-palm-box { background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 20px; padding: 24px; text-align: center; backdrop-filter: blur(12px); }
+.palm-svg-container { position: relative; max-width: 300px; margin: 0 auto; }
+.palm-line { fill: none; stroke: var(--cyan-electric); stroke-width: 4; stroke-linecap: round; cursor: pointer; transition: 0.25s ease; filter: drop-shadow(0 0 6px var(--cyan-electric)); }
+.palm-line:hover, .palm-line.active { stroke: var(--crimson-neon); stroke-width: 7; filter: drop-shadow(0 0 14px var(--crimson-neon)); }
+.line-tooltip { font-family: var(--mono); font-size: 0.85rem; color: var(--green-toxic); background: rgba(0,0,0,0.6); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-glass); margin-top: 14px; min-height: 2.5em; }
+
+/* Diagnostics Panel */
+.diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.diag-card { background: rgba(18, 14, 30, 0.7); border: 1px solid var(--border-glass); border-radius: 14px; padding: 16px; }
+.diag-header { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.75rem; margin-bottom: 6px; }
+.diag-label { color: var(--text-dim); }
+.diag-val { color: var(--green-toxic); font-weight: bold; }
+.diag-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+.diag-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple-neon), var(--crimson-neon)); transition: width 1.2s cubic-bezier(0.1, 0.9, 0.2, 1); }
+.diag-desc { font-style: italic; font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+/* Tech Spec Table Panel */
+.tech-box { background: rgba(10, 8, 20, 0.9); border: 1px solid var(--border-glass); border-radius: 16px; padding: 20px; font-family: var(--mono); font-size: 0.8rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.tech-box span { color: var(--text-dim); }
+.tech-box b { color: var(--cyan-electric); }
+
+.verdict-box { background: radial-gradient(circle at center, rgba(165, 104, 255, 0.15), transparent 70%), var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 20px; padding: 36px; text-align: center; }
+.verdict-text { font-size: clamp(1.1rem, 3vw, 1.4rem); font-style: italic; color: #fff; margin: 0; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="top-controls">
+  <button class="pill-btn" id="btnSoundToggle">🔊 SOUND: ON</button>
+</div>
+
+<canvas id="bgCanvas"></canvas>
+<div class="cyber-grid"></div>
+
+<main>
+  <header class="hero">
+    <h1 class="glitch-title" data-text="BRUTAL PALM READER">BRUTAL PALM READER</h1>
+    <p class="subtitle">Ninte palm-il secret undennu karuthi vannathalle? Sheri. Ippo regret cheyyam.</p>
+    <p class="disclaimer">100% FAKE • 200% DISRESPECTFUL • LIVE ML TRACKING 💀</p>
+  </header>
+
+  <!-- SCANNER CARD -->
+  <section class="tilt-card" id="scanCard">
+    <div class="portal-empty" id="portalEmpty">
+      <div class="portal-icon" id="easterEggIcon" title="Click for chaotic energy!">🖐️</div>
+      <h2 style="font-family: var(--mono); letter-spacing: 0.1em; font-size: 1.2rem; margin: 10px 0 6px;">SUMMON THE CYBER ORACLE</h2>
+      <p style="font-style: italic; color: var(--text-dim); max-width: 450px; font-size: 0.95rem; margin: 0 0 20px;">
+        Camera access tharoo or image upload cheyyoo. Ninte destiny njan roast chethu tharaam.
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnLiveScan">📷 LIVE ML PALM SCAN</button>
+        <button class="btn btn-secondary" id="btnUploadImage">📁 UPLOAD PALM PHOTO</button>
+      </div>
+      <p id="mlLoadingText" style="font-family: var(--mono); color: var(--cyan-electric); font-size: 0.8rem; margin-top: 15px;" class="hidden">
+        ⚡ Loading MediaPipe Vision Models... Wait cheyyu bro.
+      </p>
+      <input type="file" id="fileInput" accept="image/*" class="visually-hidden" />
+    </div>
+
+    <!-- Live Stream Camera Stage -->
+    <div class="stage-container hidden" id="cameraStage">
+      <p style="font-family: var(--mono); color: var(--cyan-electric); font-size: 0.85rem; margin: 0;" id="camStatusText">
+        Connecting neural vision stream...
+      </p>
+      <div class="viewport-frame" id="camViewport">
+        <div class="scan-line"></div>
+        <video id="webcamVideo" autoplay playsinline></video>
+        <canvas id="webcamCanvas"></canvas>
+        <div class="progress-overlay hidden" id="camOverlay">
+          <div class="scan-msg" id="camScanMsg">INITIALIZING...</div>
+          <div class="track-bar"><div class="fill-bar" id="camFill"></div></div>
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);" id="camPct">0%</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="btnCancelCam" style="padding: 8px 20px; font-size: 0.75rem;">CANCEL</button>
+    </div>
+
+    <!-- Photo Preview Stage -->
+    <div class="stage-container hidden" id="previewStage">
+      <div class="viewport-frame" id="imgViewport" style="aspect-ratio: 1/1; max-width: 350px;">
+        <div class="scan-line"></div>
+        <img id="previewImage" style="width:100%; height:100%; object-fit:cover;" alt="Uploaded Palm" />
+        <div class="progress-overlay hidden" id="imgOverlay">
+          <div class="scan-msg" id="imgScanMsg">INITIALIZING...</div>
+          <div class="track-bar"><div class="fill-bar" id="imgFill"></div></div>
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);" id="imgPct">0%</div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnProcessUpload">🔮 READ MY PALM</button>
+        <button class="btn btn-secondary" id="btnCancelUpload" style="padding: 10px 20px; font-size: 0.75rem;">CANCEL</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS SECTION -->
+  <section class="results-section hidden" id="resultsSection">
+    <div style="text-align: center;">
+      <h2 class="glitch-title" data-text="YOUR DESTINY UNVEILED" style="font-size: 2rem;">YOUR DESTINY UNVEILED</h2>
+      <p class="subtitle">Universe nokki. Pinne ninne roast cheyyan thudangi.</p>
+    </div>
+
+    <!-- SVG Palm Line Explorer -->
+    <div class="interactive-palm-box">
+      <h3 style="font-family: var(--mono); color: var(--cyan-electric); margin: 0 0 4px; font-size: 0.9rem;">INTERACTIVE LINE DIAGNOSTICS</h3>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0 0 15px;">Click or hover lines on the hand schema for live feedback:</p>
+      
+      <div class="palm-svg-container">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 50 120 Q 40 60 55 20 Q 65 20 70 60 Q 75 15 90 10 Q 100 10 105 55 Q 110 15 125 20 Q 135 25 135 70 Q 145 40 160 50 Q 165 60 150 100 Q 165 140 150 210 Q 100 230 50 210 Z" fill="none" stroke="rgba(165,104,255,0.3)" stroke-width="2" />
+          <path id="lineHeart" class="palm-line" d="M 50 85 Q 90 80 145 65" />
+          <path id="lineHead" class="palm-line" d="M 48 105 Q 100 100 135 125" />
+          <path id="lineLife" class="palm-line" d="M 50 105 Q 85 130 80 195" />
+          <path id="lineDelusion" class="palm-line" d="M 100 190 L 115 75" stroke-dasharray="4,4" />
+        </svg>
+      </div>
+      <div class="line-tooltip" id="lineTooltip">Hover or tap any palm line above for detailed extraction...</div>
+    </div>
+
+    <!-- Grid Cards -->
+    <div class="results-grid">
+      <div class="roast-card"><h3>💀 Death Date</h3><p id="rDeath"></p></div>
+      <div class="roast-card"><h3>💍 Marriage Date</h3><p id="rMarriage"></p></div>
+      <div class="roast-card"><h3>👶 Kids</h3><p id="rKids"></p></div>
+      <div class="roast-card"><h3>💋 First Kiss</h3><p id="rKiss"></p></div>
+      <div class="roast-card"><h3>🍀 Lucky Item</h3><p id="rLucky"></p></div>
+      <div class="roast-card"><h3>🎯 Favorite Hobby</h3><p id="rHobby"></p></div>
+    </div>
+
+    <!-- Diagnostics Panel -->
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">CHAOS LEVEL</span><span class="diag-val" id="vChaos">--%</span></div>
+        <div class="diag-bar"><div class="diag-fill" id="fChaos"></div></div>
+        <p class="diag-desc">Ithu kandittu enikku thanne pediyayi.</p>
+      </div>
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">ROMANCE STABILITY</span><span class="diag-val" id="vRomance">--%</span></div>
+        <div class="diag-bar"><div class="diag-fill" id="fRomance"></div></div>
+        <p class="diag-desc">Bro, ithu stable alla.</p>
+      </div>
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">COMMON SENSE</span><span class="diag-val">404</span></div>
+        <div class="diag-bar"><div class="diag-fill" style="width:4%;"></div></div>
+        <p class="diag-desc">Page kandupidikkan pattiyilla.</p>
+      </div>
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">FINANCIAL DISCIPLINE</span><span class="diag-val" id="vFinance">--%</span></div>
+        <div class="diag-bar"><div class="diag-fill" id="fFinance"></div></div>
+        <p class="diag-desc">Salary vannu. Randu divasam kazhinju mystery.</p>
+      </div>
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">MAIN CHARACTER SYNDROME</span><span class="diag-val" id="vMainChar">--%</span></div>
+        <div class="diag-bar"><div class="diag-fill" id="fMainChar"></div></div>
+        <p class="diag-desc">Background characters already complaint koduthu.</p>
+      </div>
+      <div class="diag-card">
+        <div class="diag-header"><span class="diag-label">RED FLAG DENSITY</span><span class="diag-val" id="vRedFlag">--</span></div>
+        <div class="diag-bar"><div class="diag-fill" id="fRedFlag"></div></div>
+        <p class="diag-desc" id="cRedFlag">Flag alla bro. Full cricket pitch aanu.</p>
+      </div>
+    </div>
+
+    <!-- Tech Spec Panel -->
+    <div class="tech-box">
+      <div><span>PALM ID:</span> <b id="tPalmId">--</b></div>
+      <div><span>SOUL FREQ:</span> <b id="tSoulFreq">--</b></div>
+      <div><span>DESTINY INDEX:</span> <b id="tDestinyIdx">--</b></div>
+      <div><span>CHAOS SIG:</span> <b id="tChaosSig">--</b></div>
+      <div><span>EMO LATENCY:</span> <b id="tEmoLat">--</b></div>
+      <div><span>RED FLAGS:</span> <b id="tRedFlags">--</b></div>
+    </div>
+
+    <!-- Final Verdict -->
+    <div class="verdict-box">
+      <h3 style="font-family: var(--mono); color: var(--gold-cyber); margin: 0 0 10px; font-size: 0.9rem; letter-spacing: 0.15em;">THE ORACLE HAS SPOKEN</h3>
+      <p class="verdict-text" id="vQuote"></p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="btnDownloadCard">🖼️ EXPORT DOOM CARD IMAGE</button>
+      <button class="btn btn-secondary" id="btnShareRoast">📢 SHARE DOOM CARD</button>
+      <button class="btn btn-primary" id="btnResetAll">↻ READ AGAIN</button>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. AUDIO SYNTHESIZER ENGINE (Web Audio API)
+============================================================ */
+let soundEnabled = true;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playBeep(freq = 440, type = 'sine', duration = 0.08) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e){}
+}
+
+function playScanSweep() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(750, ctx.currentTime + 0.25);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+  } catch(e){}
+}
+
+function playGlitchSound() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(90, ctx.currentTime);
+    osc.frequency.setValueAtTime(280, ctx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(40, ctx.currentTime + 0.09);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.18);
+  } catch(e){}
+}
+
+document.getElementById('btnSoundToggle').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  document.getElementById('btnSoundToggle').textContent = soundEnabled ? "🔊 SOUND: ON" : "🔇 SOUND: OFF";
+  if(soundEnabled) playBeep(600, 'sine', 0.1);
+});
+
+/* ============================================================
+   2. 3D PARALLAX EFFECT
+============================================================ */
+const tiltCard = document.getElementById('scanCard');
+tiltCard.addEventListener('mousemove', (e) => {
+  const rect = tiltCard.getBoundingClientRect();
+  const x = e.clientX - rect.left - rect.width / 2;
+  const y = e.clientY - rect.top - rect.height / 2;
+  tiltCard.style.transform = `perspective(1000px) rotateX(${-y / 25}deg) rotateY(${x / 25}deg)`;
+});
+tiltCard.addEventListener('mouseleave', () => {
+  tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+});
+
+/* ============================================================
+   3. CONTENT BANKS & DETERMINISTIC RNG
+============================================================ */
+const ROAST_BANKS = {
+  death: [
+    "August 12th, 2031 — 'ithu njan handle cheyyam' ennu paranjond irikkumbo random incident. Universe ninne seriously eduthittilla 💀",
+    "October 4th, 2036 — mosquito-yodu fight cheythu thottu pokum. Mosquito undefeated 🦟",
+    "June 7th, 2042 — WhatsApp group argument win cheyyan nokki, universe mute adichu.",
+    "March 15th, 2029 — reels scroll cheythond nadakkumbo open manhole. RIP scroll speed 📱",
+    "November 23rd, 2045 — 'last piece' biryani plate ninne overpower cheyyum 🍗"
+  ],
+  marriage: [
+    "February 30th — aa date polum illa. PlayStation aanu better match bro 🎮",
+    "April 1st, 2042 — partner aaranu ennu universe-inum ariyilla 🤷‍♂️",
+    "September 17th, 2040 — situationship reply cheyyanam, kazhinjale qualify aavuu.",
+    "Never — chat history kandu universe application straight reject cheythu ❌",
+    "August 8th, 2038 — 'think cheyyatte' ennu paranju 3 varsham think cheyum."
+  ],
+  kids: [
+    "0 kids — 3 feral raccoons adopt cheyyum, pinne emancipation file cheyyum 🦝",
+    "2 kids — randuperum 10 vayassinu munpe group-il block cheyyum 🚫",
+    "1 kid — screen addiction full inheritance aayi kittum 📲",
+    "Biological kids illa — abandon cheytha hobbies aanu children 🎸",
+    "3 kids — 3 perum embarrassing photos kandu therapy-ku pokum 🛋️"
+  ],
+  kiss: [
+    "2019-il mirror aanu first kiss. Mirror distance maintain cheythu 🪞",
+    "First kiss almost nadannu — 'haha anyway' ennu paranju escape 💨",
+    "Pillow aanu first kiss. At least ghost cheythilla 🛋️",
+    "Crush aayirunnu, overthink cheythu ruined it 🧠",
+    "First kiss ippozhum loading — buffering 80% ⏳"
+  ],
+  lucky: [
+    "Expired dry shampoo bottle — confidence aanu ninte luck 🧴",
+    "Pair kittatha lonely sock — incomplete like life 🧦",
+    "Cracked phone case — universe respects survival 📱",
+    "Exam time-il mathram work cheyuna pen 🖊️",
+    "2%-il stuck power bank — exact energy match 🔋"
+  ],
+  hobby: [
+    "People-ne left on read aakki nadakkum 📩",
+    "2 AM vare life plan cheyum, morning-il uninstall 🌙",
+    "Instagram profile stalking — 2018 photos analyze 🕵️‍♂️",
+    "Fridge 10 min kazhinju thurakkum — new content check 🍕",
+    "Productivity videos kandu productive enna illusion 🎬"
+  ],
+  verdict: [
+    "Universe ninte palm nokki. Silent aayi. Pinne 'bro, seriously?' ennu chodichu.",
+    "Future bright aanu — 3 AM phone screen brightness 📱",
+    "Stars guide cheyyan nokki. Nee ignore cheythu. Respect 🙌",
+    "Ancient forces answer: 'Da, nee thanne nokkikko.' 🔮",
+    "Destiny loading... Common sense not installed ⚡"
+  ]
+};
+
+const LINE_ROASTS = {
+  lineHeart: "HEART LINE: Extinct since 2021. Love life runs purely on attachment issues and delulu.",
+  lineHead: "HEAD LINE: 404 Not Found. Decision process involves tossing a coin and ignoring the outcome.",
+  lineLife: "LIFE LINE: Long, but 80% will be spent staring at a phone charging at 1%.",
+  lineDelusion: "DELUSION LINE: Extremely strong. Thinks everyone in the room is constantly looking at them."
+};
+
+function hashString(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+
+function createRNG(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function pick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+function randInt(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+
+function generateReading(seed) {
+  const rng = createRNG(seed);
+  const redFlags = ["LOW", "MODERATE", "HIGH", "EXTREME"];
+  const rfVal = pick(rng, redFlags);
+  
+  return {
+    death: pick(rng, ROAST_BANKS.death),
+    marriage: pick(rng, ROAST_BANKS.marriage),
+    kids: pick(rng, ROAST_BANKS.kids),
+    kiss: pick(rng, ROAST_BANKS.kiss),
+    lucky: pick(rng, ROAST_BANKS.lucky),
+    hobby: pick(rng, ROAST_BANKS.hobby),
+    verdict: pick(rng, ROAST_BANKS.verdict),
+    diag: {
+      chaos: randInt(rng, 60, 99), romance: randInt(rng, 2, 38), finance: randInt(rng, 4, 32), mainChar: randInt(rng, 75, 99),
+      redFlag: rfVal, redFlagPct: rfVal === 'LOW' ? 25 : rfVal === 'MODERATE' ? 50 : rfVal === 'HIGH' ? 75 : 98
+    },
+    tech: {
+      palmId: (seed.toString(16).toUpperCase().padStart(8, "0").slice(0, 6)).match(/.{1,2}/g).join("-"),
+      soulFreq: (rng() * 110 + 20).toFixed(1) + " Hz",
+      destinyIdx: randInt(rng, 5, 98),
+      chaosSig: "KL-" + randInt(rng, 100, 999),
+      emoLat: (rng() * 3 + 0.3).toFixed(1) + "s",
+      redFlags: randInt(rng, 5, 48)
+    }
+  };
+}
+
+/* ============================================================
+   4. UI ANIMATION ENGINE & STATE
+============================================================ */
+let currentReading = null;
+let currentObjectURL = null;
+
+function typeWriter(el, text, speed = 15) {
+  el.textContent = ""; let i = 0;
+  function step() {
+    if (i <= text.length) {
+      el.textContent = text.slice(0, i);
+      if (i % 4 === 0) playBeep(700 + (i * 8), 'sine', 0.02);
+      i++; setTimeout(step, speed);
+    }
+  }
+  step();
+}
+
+function runScanAnimation(msgElId, fillElId, pctElId, overlayId, onDone) {
+  const overlay = document.getElementById(overlayId);
+  overlay.classList.remove('hidden');
+  
+  const msgs = ["PALM LOCKED...", "ANALYZING BAD DECISIONS...", "SCANNING ROMANCE FAILURES...", "RED FLAGS COUNTING...", "UNIVERSE JUDGING YOU..."];
+  let mIdx = 0;
+  typeWriter(document.getElementById(msgElId), msgs[0], 20);
+  
+  const msgTimer = setInterval(() => {
+    mIdx = (mIdx + 1) % msgs.length;
+    typeWriter(document.getElementById(msgElId), msgs[mIdx], 20);
+    playScanSweep();
+  }, 600);
+
+  let pct = 0;
+  const timer = setInterval(() => {
+    pct += 2;
+    document.getElementById(fillElId).style.width = pct + "%";
+    document.getElementById(pctElId).textContent = pct + "%";
+    if (pct >= 100) {
+      clearInterval(timer); clearInterval(msgTimer);
+      playGlitchSound();
+      document.body.classList.add('shake');
+      setTimeout(() => document.body.classList.remove('shake'), 400);
+      
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        onDone();
+      }, 500);
+    }
+  }, 40);
+}
+
+function renderResults(reading) {
+  document.getElementById('rDeath').textContent = reading.death;
+  document.getElementById('rMarriage').textContent = reading.marriage;
+  document.getElementById('rKids').textContent = reading.kids;
+  document.getElementById('rKiss').textContent = reading.kiss;
+  document.getElementById('rLucky').textContent = reading.lucky;
+  document.getElementById('rHobby').textContent = reading.hobby;
+
+  const d = reading.diag;
+  document.getElementById('vChaos').textContent = d.chaos + "%"; document.getElementById('fChaos').style.width = d.chaos + "%";
+  document.getElementById('vRomance').textContent = d.romance + "%"; document.getElementById('fRomance').style.width = d.romance + "%";
+  document.getElementById('vFinance').textContent = d.finance + "%"; document.getElementById('fFinance').style.width = d.finance + "%";
+  document.getElementById('vMainChar').textContent = d.mainChar + "%"; document.getElementById('fMainChar').style.width = d.mainChar + "%";
+  document.getElementById('vRedFlag').textContent = d.redFlag; document.getElementById('fRedFlag').style.width = d.redFlagPct + "%";
+
+  const t = reading.tech;
+  document.getElementById('tPalmId').textContent = t.palmId;
+  document.getElementById('tSoulFreq').textContent = t.soulFreq;
+  document.getElementById('tDestinyIdx').textContent = t.destinyIdx;
+  document.getElementById('tChaosSig').textContent = t.chaosSig;
+  document.getElementById('tEmoLat').textContent = t.emoLat;
+  document.getElementById('tRedFlags').textContent = t.redFlags;
+
+  typeWriter(document.getElementById('vQuote'), reading.verdict, 20);
+
+  document.getElementById('scanCard').classList.add('hidden');
+  const resSec = document.getElementById('resultsSection');
+  resSec.classList.remove('hidden');
+  resSec.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* SVG Line Interactions */
+['lineHeart', 'lineHead', 'lineLife', 'lineDelusion'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('mouseenter', () => {
+    playBeep(900, 'sine', 0.04);
+    document.getElementById('lineTooltip').textContent = LINE_ROASTS[id];
+  });
+  el.addEventListener('click', () => {
+    playGlitchSound();
+    document.querySelectorAll('.palm-line').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('lineTooltip').textContent = "⚠️ CRITICAL EXPLOIT: " + LINE_ROASTS[id];
+  });
+});
+
+/* Easter Egg Icon */
+document.getElementById('easterEggIcon').addEventListener('click', () => {
+  playGlitchSound();
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 400);
+  alert("🔮 ORACLE WARNING: Excessive poking will result in maximum disrespect!");
+});
+
+/* ============================================================
+   5. UPLOAD & CAMERA ML IMPLEMENTATION
+============================================================ */
+document.getElementById('btnUploadImage').addEventListener('click', () => {
+  playBeep(500, 'sine', 0.05);
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
+  currentObjectURL = URL.createObjectURL(file);
+  document.getElementById('previewImage').src = currentObjectURL;
+
+  document.getElementById('portalEmpty').classList.add('hidden');
+  document.getElementById('previewStage').classList.remove('hidden');
+
+  currentReading = generateReading(hashString(file.name + file.size + file.lastModified));
+});
+
+document.getElementById('btnProcessUpload').addEventListener('click', () => {
+  playBeep(650, 'triangle', 0.08);
+  runScanAnimation('imgScanMsg', 'imgFill', 'imgPct', 'imgOverlay', () => {
+    renderResults(currentReading);
+  });
+});
+
+document.getElementById('btnCancelUpload').addEventListener('click', resetApp);
+
+/* MediaPipe ML Stream Integrator */
+let cameraInst = null;
+let handsInst = null;
+
+function loadScript(url) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${url}"]`)) return res();
+    const s = document.createElement('script'); s.src = url; s.crossOrigin = "anonymous";
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+document.getElementById('btnLiveScan').addEventListener('click', async () => {
+  playBeep(600, 'sine', 0.08);
+  document.getElementById('mlLoadingText').classList.remove('hidden');
+
+  try {
+    await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js");
+    await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js");
+    await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js");
+
+    document.getElementById('portalEmpty').classList.add('hidden');
+    document.getElementById('cameraStage').classList.remove('hidden');
+
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('webcamCanvas');
+    const ctx = canvas.getContext('2d');
+    let stableCount = 0;
+
+    if (!handsInst) {
+      handsInst = new window.Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+      handsInst.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.6, minTrackingConfidence: 0.6 });
+      handsInst.onResults((results) => {
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          document.getElementById('camStatusText').textContent = "PALM LOCKED! STAY STILL...";
+          window.drawConnectors(ctx, results.multiHandLandmarks[0], window.HAND_CONNECTIONS, { color: '#00f0ff', lineWidth: 3 });
+          window.drawLandmarks(ctx, results.multiHandLandmarks[0], { color: '#a568ff', lineWidth: 1, radius: 2 });
+
+          stableCount++;
+          playBeep(400 + (stableCount * 15), 'sine', 0.02);
+
+          if (stableCount >= 20) {
+            cameraInst.stop();
+            currentReading = generateReading(hashString(JSON.stringify(results.multiHandLandmarks[0])));
+            runScanAnimation('camScanMsg', 'camFill', 'camPct', 'camOverlay', () => {
+              renderResults(currentReading);
+            });
+          }
+        } else {
+          document.getElementById('camStatusText').textContent = "KAANICHU THAA BRO! NO PALM DETECTED...";
+          stableCount = 0;
+        }
+        ctx.restore();
+      });
+    }
+
+    if (!cameraInst) {
+      cameraInst = new window.Camera(video, {
+        onFrame: async () => { await handsInst.send({ image: video }); },
+        width: 640, height: 480
+      });
+    }
+    await cameraInst.start();
+  } catch(e) {
+    alert("Camera access denied or MediaPipe scripts blocked.");
+    resetApp();
+  }
+});
+
+document.getElementById('btnCancelCam').addEventListener('click', () => {
+  if (cameraInst) cameraInst.stop();
+  resetApp();
+});
+
+/* ============================================================
+   6. EXPORT DOOM CARD IMAGE & RESET
+============================================================ */
+document.getElementById('btnDownloadCard').addEventListener('click', () => {
+  if (!currentReading) return;
+  const c = document.createElement('canvas');
+  c.width = 800; c.height = 600;
+  const ctx = c.getContext('2d');
+
+  // Draw cyber background card
+  ctx.fillStyle = "#0c0a14"; ctx.fillRect(0, 0, 800, 600);
+  ctx.strokeStyle = "#a568ff"; ctx.lineWidth = 4; ctx.strokeRect(20, 20, 760, 560);
+  
+  ctx.fillStyle = "#35f2ff"; ctx.font = "bold 28px monospace";
+  ctx.fillText("🔮 BRUTAL PALM READER DOOM CARD", 50, 70);
+
+  ctx.fillStyle = "#ffffff"; ctx.font = "20px serif";
+  ctx.fillText(`💀 Death: ${currentReading.death.slice(0, 45)}...`, 50, 140);
+  ctx.fillText(`💍 Marriage: ${currentReading.marriage.slice(0, 45)}...`, 50, 200);
+  ctx.fillText(`👶 Kids: ${currentReading.kids}`, 50, 260);
+  ctx.fillText(`💋 Kiss: ${currentReading.kiss}`, 50, 320);
+  ctx.fillText(`🍀 Lucky: ${currentReading.lucky}`, 50, 380);
+
+  ctx.fillStyle = "#ff3e6c"; ctx.font = "bold 22px monospace";
+  ctx.fillText(`🚩 RED FLAG DENSITY: ${currentReading.diag.redFlag}`, 50, 460);
+  ctx.fillText(`VERDICT: "${currentReading.verdict.slice(0, 40)}..."`, 50, 520);
+
+  const link = document.createElement('a');
+  link.download = `doom-card-${currentReading.tech.palmId}.png`;
+  link.href = c.toDataURL();
+  link.click();
+});
+
+document.getElementById('btnShareRoast').addEventListener('click', () => {
+  if (!currentReading) return;
+  const shareText = `🔮 BRUTAL PALM READER DOOM CARD 🔮\n\n💀 Death: ${currentReading.death}\n💍 Marriage: ${currentReading.marriage}\n🚩 Red Flags: ${currentReading.diag.redFlag}\n\nRead your doom here! 💀`;
+  if (navigator.share) {
+    navigator.share({ title: 'My Doom Reading', text: shareText }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareText);
+    alert("Roast copied to clipboard! Share it with your friends 💀");
+  }
+});
+
+function resetApp() {
+  playBeep(450, 'sine', 0.08);
+  document.getElementById('scanCard').classList.remove('hidden');
+  document.getElementById('resultsSection').classList.add('hidden');
+  document.getElementById('portalEmpty').classList.remove('hidden');
+  document.getElementById('cameraStage').classList.add('hidden');
+  document.getElementById('previewStage').classList.add('hidden');
+  document.getElementById('mlLoadingText').classList.add('hidden');
+
+  if (currentObjectURL) { URL.revokeObjectURL(currentObjectURL); currentObjectURL = null; }
+  document.getElementById('fileInput').value = "";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('btnResetAll').addEventListener('click', resetApp);
+
+/* Background Particle Engine */
+(function initParticles() {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, pts = [];
+
+  function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  for (let i = 0; i < 70; i++) {
+    pts.push({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 1.8 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      c: ["rgba(165,104,255,", "rgba(53,242,255,", "rgba(255,62,108,"][Math.floor(Math.random() * 3)]
+    });
+  }
+
+  function anim() {
+    ctx.clearRect(0, 0, w, h);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath(); ctx.fillStyle = p.c + "0.4)";
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    });
+    requestAnimationFrame(anim);
+  }
+  anim();
+})();
+</script>
+</body>
+</html>
