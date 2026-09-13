@@ -4,7 +4,7 @@ a nice and brutal palm reader for useless projects
 
 ## Basic Details
 
-**Team Name:** Error 404: Rizz Not Found
+**Team Name:**team wahh
 
 **Team Members**
 * **Team Lead:** UJ Harisankar - Sree Chitra Thirunal College of Engineering (SCTCE)
