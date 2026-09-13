@@ -38,5 +38,5 @@ An overly dramatic, fake ML palm scanner that traps the user. We built a system 
 ### Installation
 No complex setup required. 
 ```bash
-git clone [your-repo-link]
+git clone https://github.com/hsk-07/palmreader
 cd brutal-palm-reader
